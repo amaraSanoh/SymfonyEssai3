@@ -1,0 +1,52 @@
+{# /src/OC/PlatformBundle/Resources/views/Advert/view.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+{% block title %} {{parent()}} Affichage d'annonce {% endblock %}
+
+{% block ocplatform_body %} 
+	<h2> {{advert.title }}</h2>
+	<i> Par {{advert.author }}, le {{advert.date|date('d/m/Y') }}</i>
+
+	<div class="well">
+		{{ advert.content }}
+	</div>
+
+	 <p>
+    		<a href="{{ url('oc_platform_home') }}" class="btn btn-default">
+		<i class="glyphicon glyphicon-chevron-left"></i>
+		Retour à la liste
+		</a>
+
+    		<a href="{{ path('oc_platform_edit', {'id': advert.id}) }}" class="btn btn-default">
+		<i class="glyphicon glyphicon-edit"></i>
+		Modifier l'annonce
+		</a>
+
+		<a href="{{ path('oc_platform_delete', {'id': advert.id}) }}" class="btn btn-danger">
+		<i class="glyphicon glyphicon-trash"></i>
+		Supprimer l'annonce
+		</a>
+	</p>
+
+	<div>
+		{% for type, messages in app.session.flashBag.all() %}
+			{% for message in messages %}
+				{% if type == 'info' %}
+					<p> Message flash : {{ message }} </p>
+				{% elseif type == 'notice' %}
+					<p> Message flash : {{ message }} </p>
+				{% endif %}
+			{% endfor %}
+		{% endfor %}
+
+	</div>
+
+{% endblock %} 
+
+    
+    
+	
+	
+	
+    
+
