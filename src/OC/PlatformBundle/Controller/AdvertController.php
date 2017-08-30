@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+
 class AdvertController extends Controller{
 	
 	public function indexAction($page){
@@ -65,6 +66,17 @@ class AdvertController extends Controller{
 			$session->getFlashBag()->add('info','OUI Oui Annonce prochainement enregistrée !'); 
 			return $this->redirectToRoute('oc_platform_view',array('id'=>5)); 
 		}
+
+		$antispam = $this->container->get('oc_platform.antispam');
+		$message = " je suis je suis je suis je suis je suis je suis je suis je suis je suis";  
+		if($antispam->isSpam($message)){
+			throw new \Exception('votre message est un spam'); 
+		}
+
+		//envoi d'email essai
+
+		$envoiEmail =  $this->container->get("oc_platform.envoiEmail");
+		$envoiEmail->envoi("Ajout annonce","amara.sanoh.hawa@gmail.com","sanohawa@gmail.com", "___test___ Envoi email ___test___");  
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig')); 
 	}
 
