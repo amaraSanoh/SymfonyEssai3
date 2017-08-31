@@ -1,0 +1,18 @@
+
+{%extends "OCCoreBundle::layout.html.twig"%}
+
+{% block title %} {{parent()}}Page d'accueil {% endblock %}
+
+{% block body %} 
+  <br> 
+  <h2>Page d'accueil du site </h2>
+  <hr>
+  <h3>Les dernieres annonces</h3>
+  {{render(controller("OCPlatformBundle:Advert:menu", {'limit': 3}))}}
+
+  <hr> 
+  {% for message in app.session.flashbag.get('information') %}
+  <div class='alert alert-info'> message flash : {{ message }}</div>
+  {% endfor %}
+
+{% endblock %}

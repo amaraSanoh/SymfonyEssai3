@@ -2,7 +2,7 @@ services:
     oc_platform.antispam:
         class: OC\PlatformBundle\Antispam\OCAntispam
         arguments:
-            - %locale%
+            - "%locale%"
             - 50
 
 
