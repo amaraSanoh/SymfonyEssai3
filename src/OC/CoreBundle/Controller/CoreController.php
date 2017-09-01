@@ -16,6 +16,7 @@ class CoreController extends Controller{
 	public function contactAction(Request $request){
 		$session = $request->getSession(); 
 		$session->getFlashBag()->add("information","La page de contact n'est pas disponible pour le moment, merci de revenir plus tard");
+		
 		return $this->redirectToRoute('oc_core_home');
 	}
 }

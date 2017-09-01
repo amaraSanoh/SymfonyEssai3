@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use OC\PlatformBundle\Entity\Advert; 
 
 
 class AdvertController extends Controller{
@@ -44,14 +45,12 @@ class AdvertController extends Controller{
 
 
 	public function viewAction($id){
-		 $advert = array(	
-      			'title'   => 'Recherche développpeur Symfony2',
-     		 	'id'      => $id,
-      			'author'  => 'Alexandre',
-			'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
-			'date'    => new \Datetime()
+		//recuperation de l'annonce d'id $id afin de l'afficher
+		$em = $this->getDoctrine()->getManager();
+		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id); 
 
-    		);
+		if($advert === null) throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas !!"); 
+		
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:view.html.twig', array('advert'=>$advert)));
 	}
 
@@ -59,24 +58,42 @@ class AdvertController extends Controller{
 
 	public function addAction(Request $request){
 
+		//creation de l'entité advert
+		$advert = new Advert(); 
+		$advert->setTitle("Recherche developpeur web"); 
+		$advert->setAuthor("toto"); 
+		$advert->setContent("Nous recherchons un developpeur web sur Nancy...blabla...."); 
+		//recuperation de l'entité manager
+		$em = $this->getDoctrine()->getManager(); 
+
+		//etape 1, on persiste l'entite
+		$em->persist($advert); 
+
+		//etape 2, tout ce qui a été persisté avant
+		$em->flush();
+
+
 		if($request->isMethod('POST')){
 			$session = $request->getSession();
 			//Vue que j ai la session je peux desormais utiliser la methode getFlashBag()
 			$session->getFlashBag()->add('info','Annonce prochainement enregistrée !'); 
 			$session->getFlashBag()->add('info','OUI Oui Annonce prochainement enregistrée !'); 
-			return $this->redirectToRoute('oc_platform_view',array('id'=>5)); 
+			return $this->redirectToRoute('oc_platform_view',array('id'=>$advert->getId())); 
 		}
 
+		//test du service antispam
 		$antispam = $this->container->get('oc_platform.antispam');
 		$message = " je suis je suis je suis je suis je suis je suis je suis je suis je suis";  
 		if($antispam->isSpam($message)){
 			throw new \Exception('votre message est un spam'); 
 		}
 
-		//envoi d'email essai
+		//test de l'envoi d'email 
 
 		$envoiEmail =  $this->container->get("oc_platform.envoiEmail");
-		$envoiEmail->envoi("Ajout annonce","amara.sanoh.hawa@gmail.com","sanohawa@gmail.com", "___test___ Envoi email ___test___");  
+		$envoiEmail->envoi("Ajout d'annonce: ".$advert->getTitle(),"amara.sanoh.hawa@gmail.com","sanohawa@gmail.com", "___test___ Envoi email ___test___
+			".$advert->getContent()."
+			Contact: ".$advert->getAuthor());  
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig')); 
 	}
 
@@ -90,14 +107,14 @@ class AdvertController extends Controller{
 			return $this->redirectToRoute('oc_platform_view',array('id'=>$id)); 
 		}
 
-		
-    		$advert = array(
-      			'title'   => 'Recherche développpeur Symfony',
-      			'id'      => $id,
-      			'author'  => 'Alexandre',
-      			'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-      			'date'    => new \Datetime()
-    		);
+		//recuperation de l'annonce d'id $id afin de l'editer
+    	$em = $this->getDoctrine()->getManager(); 
+    	$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
+    	$advert->setTitle("Comptable"); 
+    	$advert->setContent("Nous recherchons un comptable sur Nancy....Beaucoup de blabla....blabla...toujours plus de blabla...");
+
+    	$em->flush();
+
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:edit.html.twig', array('advert'=>$advert))); 
 	}
 
@@ -105,8 +122,17 @@ class AdvertController extends Controller{
 
 
 	public function deleteAction($id){
+		//recuperation en DB de l'annonce d'id $id
+		$em = $this->getDoctrine()->getManager();
+		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
+		//supprimer maintenant $advert de la base de donnees
+		$em->remove($advert); 
+
+		$em->flush();
+
 		return $this->render('OCPlatformBundle:Advert:delete.html.twig', array('id'=>$id)); 
 	}
+
 
 	public function menuAction(){
 		// On fixe en dur une liste ici, bien entendu par la suite
