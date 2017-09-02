@@ -16,28 +16,9 @@ class AdvertController extends Controller{
 	public function indexAction($page){
 		if(isset($page) && !empty($page) && $page < 1) throw new NotFoundHttpException('Page"'.$page.'"inexistant.'); 
 
-		 // Notre liste d'annonce en dur
-
-    		$listAdverts = array(
-      			array(
-        			'title'   => 'Recherche développpeur Symfony',
-        			'id'      => 1,
-        			'author'  => 'Alexandre',
-        			'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-        			'date'    => new \Datetime()),
-      			array(
-        			'title'   => 'Mission de webmaster',
-        			'id'      => 2,
-        			'author'  => 'Hugo',
-        			'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-       				'date'    => new \Datetime()),
-      			array(
-        			'title'   => 'Offre de stage webdesigner',
-        			'id'      => 3,
-        			'author'  => 'Mathieu',
-        			'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-        			'date'    => new \Datetime())
-    		);
+		//l'entity manager
+		$em = $this->getDoctrine()->getManager(); 
+    	$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll();
 		//templating est un service. Ce service peut être appelé dans tous les controlleurs
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig', array('listAdverts'=>$listAdverts )) );
 	}
@@ -135,15 +116,12 @@ class AdvertController extends Controller{
 
 
 	public function menuAction(){
-		// On fixe en dur une liste ici, bien entendu par la suite
-		// on la récupérera depuis la BDD !
-		$listAdverts = array(
-			array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-			array('id' => 5, 'title' => 'Mission de webmaster'),
-			array('id' => 9, 'title' => 'Offre de stage webdesigner')
-	);
-
-	return new Response($this->get('templating')->render('OCPlatformBundle:Advert:menu.html.twig', array(
+		//recuperation de l'entity manager
+		$em = $this->getDoctrine()->getManager(); 
+		//recuperer tous les tuples de l'entité advert
+		$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll(); 
+		
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:menu.html.twig', array(
 		// Tout l'intérêt est ici : le contrôleur passe
 		// les variables nécessaires au template !
 		'listAdverts' => $listAdverts
