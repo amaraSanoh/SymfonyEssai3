@@ -4,6 +4,14 @@
 {% block title %} {{parent()}} Affichage d'annonce {% endblock %}
 
 {% block ocplatform_body %} 
+	<div class="well" style="background-color:green"> 
+		Il existe {{count}} candidatures pour cette annonce!
+	</div>
+
+	{%if advert.image is not null %}
+		<img src="{{advert.image.url}}" alt="{{advert.image.alt}}">
+	{% endif %}
+
 	<h2> {{advert.title }}</h2>
 	<i> Par {{advert.author }}, le {{advert.date|date('d/m/Y') }}</i>
 
@@ -11,8 +19,37 @@
 		{{ advert.content }}
 	</div>
 
-	 <p>
-    		<a href="{{ url('oc_platform_home') }}" class="btn btn-default">
+	
+		{% if not advert.categories.empty %}
+			<div>
+				Cette annonce existe pour les categories suivantes : 
+				<br> 
+				{% for c in advert.categories %}
+					{{c.name}} {% if not loop.last %}, {% endif %}
+				{% endfor %}
+			</div>
+		{% endif %}
+	
+
+	<br> <br>
+
+	
+	{% if listAdvertSkills|length > 0 %}
+		<div>
+			Cette annonce requiert les competances suivantes : 
+			<ul>
+				{% for advertSkill in listAdvertSkills %}
+					<li> {{advertSkill.skill.name }} : niveau {{ advertSkill.level }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	{% endif %}
+	
+
+	<br><br>
+
+	<p>
+    	<a href="{{ url('oc_platform_home') }}" class="btn btn-default">
 		<i class="glyphicon glyphicon-chevron-left"></i>
 		Retour à la liste
 		</a>
@@ -28,6 +65,8 @@
 		</a>
 	</p>
 
+	<br> <br>
+
 	<div>
 		{% for type, messages in app.session.flashBag.all() %}
 			{% for message in messages %}
@@ -40,6 +79,18 @@
 		{% endfor %}
 
 	</div>
+
+	
+
+	<table class="table table-hover"> 
+		<tr>
+			<th>Commentaires</th>
+		</tr>
+
+		<tr>
+			<td>ça sera pour plus tard</td>
+		</tr>
+	<table>
 
 {% endblock %} 
 

@@ -8,7 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response; 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use OC\PlatformBundle\Entity\Advert; 
+use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\Image;
+use OC\PlatformBundle\Entity\Application;
+use OC\PlatformBundle\Entity\AdvertSkill;
+
 
 
 class AdvertController extends Controller{
@@ -32,8 +36,29 @@ class AdvertController extends Controller{
 
 		if($advert === null) throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas !!"); 
 		
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:view.html.twig', array('advert'=>$advert)));
+
+    	$listDesCandidatures = $em->getRepository("OCPlatformBundle:Application")->findBy(array('advert' => $advert)); 
+    	//le tableau en parametre de findBy() est un tableau de criteres pour recuperer les applications.
+
+    	 // On récupère maintenant la liste des AdvertSkill
+		$listAdvertSkills = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert));
+
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:view.html.twig', array('advert'=>$advert, 'listDesCandidatures'=>$listDesCandidatures, 'count'=>$this->count($listDesCandidatures), 'listAdvertSkills'=>$listAdvertSkills)));
 	}
+
+
+
+
+
+	private function count($uneListe){
+		$c=0; 
+		foreach ($uneListe as $element) {
+			$c++; 
+		}
+		return $c; 
+	}
+
+
 
 
 
@@ -44,11 +69,56 @@ class AdvertController extends Controller{
 		$advert->setTitle("Recherche developpeur web"); 
 		$advert->setAuthor("toto"); 
 		$advert->setContent("Nous recherchons un developpeur web sur Nancy...blabla...."); 
+
+
+		$image = new Image(); 
+		$image ->setUrl("http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg"); 
+		$image->setAlt("Job de reve"); 
+
+		$advert->setImage($image); 
+
+
+		//pour les candidatures
+
+		$candidature1 = new Application();
+		$candidature1->setAuthor("Melanie"); 
+		$candidature1->setContent("Je disposse de toutes les qualites necessaires pour repondre à cette offre");
+
+		$candidature2 = new Application();
+		$candidature2->setAuthor("Diane"); 
+		$candidature2->setContent("Je pense ça pourrait aller"); 
+
+		$candidature1->setAdvert($advert);
+		$candidature2->setAdvert($advert);  
+
+
 		//recuperation de l'entité manager
 		$em = $this->getDoctrine()->getManager(); 
 
+
+		// On récupère toutes les compétences possibles
+    	$listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+
+
+    	// Pour chaque compétence
+		foreach ($listSkills as $skill) {
+      		// On crée une nouvelle « relation entre 1 annonce et 1 compétence »
+			$advertSkill = new AdvertSkill();
+			// On la lie à l'annonce, qui est ici toujours la même
+      		$advertSkill->setAdvert($advert);
+			// On la lie à la compétence, qui change ici dans la boucle foreach
+			$advertSkill->setSkill($skill);
+			// Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert'
+			$advertSkill->setLevel('Expert');
+			// Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+			$em->persist($advertSkill);
+    	}
+
 		//etape 1, on persiste l'entite
+		//si on n'avait pas fait de cascade persist dans les annotations, on aurait du alors persister $image à la main
 		$em->persist($advert); 
+		$em->persist($candidature1); //car dans l'annotation il n'y a pas de cascade persist. En meme temps ça ne serait pas possible advert serait dejà persisté.
+		$em->persist($candidature2); //on ne va pas le persister 36000 fois
 
 		//etape 2, tout ce qui a été persisté avant
 		$em->flush();
@@ -73,7 +143,8 @@ class AdvertController extends Controller{
 
 		$envoiEmail =  $this->container->get("oc_platform.envoiEmail");
 		$envoiEmail->envoi("Ajout d'annonce: ".$advert->getTitle(),"amara.sanoh.hawa@gmail.com","sanohawa@gmail.com", "___test___ Envoi email ___test___
-			".$advert->getContent()."
+			".
+			$advert->getContent()."
 			Contact: ".$advert->getAuthor());  
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig')); 
 	}
@@ -91,10 +162,20 @@ class AdvertController extends Controller{
 		//recuperation de l'annonce d'id $id afin de l'editer
     	$em = $this->getDoctrine()->getManager(); 
     	$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
-    	$advert->setTitle("Comptable"); 
-    	$advert->setContent("Nous recherchons un comptable sur Nancy....Beaucoup de blabla....blabla...toujours plus de blabla...");
+    	if($advert === null ){
+    		throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+    	}
+    	//$advert->setTitle("Comptable"); 
+    	//$advert->setContent("Nous recherchons un comptable sur Nancy....Beaucoup de blabla....blabla...toujours plus de blabla...");
+    	
+    	$listeDesCategories = $em->getRepository("OCPlatformBundle:Category")->findAll(); 
+    	foreach($listeDesCategories as $lc ){
+    		$advert->addCategory($lc); 
+    	}
 
-    	$em->flush();
+
+    	$em->flush(); //mettre à jour les modifications 
+    	
 
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:edit.html.twig', array('advert'=>$advert))); 
 	}
