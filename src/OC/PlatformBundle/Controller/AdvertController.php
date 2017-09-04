@@ -37,7 +37,8 @@ class AdvertController extends Controller{
 		if($advert === null) throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas !!"); 
 		
 
-    	$listDesCandidatures = $em->getRepository("OCPlatformBundle:Application")->findBy(array('advert' => $advert)); 
+    	//$listDesCandidatures = $em->getRepository("OCPlatformBundle:Application")->findBy(array('advert' => $advert)); 
+    	$listDesCandidatures = $advert->getApplications(); 
     	//le tableau en parametre de findBy() est un tableau de criteres pour recuperer les applications.
 
     	 // On récupère maintenant la liste des AdvertSkill
@@ -88,8 +89,10 @@ class AdvertController extends Controller{
 		$candidature2->setAuthor("Diane"); 
 		$candidature2->setContent("Je pense ça pourrait aller"); 
 
-		$candidature1->setAdvert($advert);
-		$candidature2->setAdvert($advert);  
+		$advert->addApplication($candidature1);
+		$advert->addApplication($candidature2);
+		//$candidature1->setAdvert($advert);
+		//$candidature2->setAdvert($advert);  
 
 
 		//recuperation de l'entité manager
