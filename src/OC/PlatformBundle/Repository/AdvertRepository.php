@@ -10,4 +10,31 @@ namespace OC\PlatformBundle\Repository;
  */
 class AdvertRepository extends \Doctrine\ORM\EntityRepository
 {
+
+	public function getAdvertWithCategories(Array $categoryNames){
+		$qb = $this->createQueryBuilder('a');
+		$qb->InnerJoin('a.categories', 'categ'); 
+		$qb->addSelect('categ');
+		// Puis on filtre sur le nom des catégories à l'aide d'un IN
+
+		$qb->where($qb->expr()->in('categ.name', $categoryNames)); 
+		
+		//Enfin, on retourne le resultat
+		return $qb->getQuery()->getResult();
+	}
+
+
+
+
+	//Methode à revoir
+	/*public function getAdvertWithApplications($id){
+		$qb = $this->createQueryBuilder('a'); 
+		$qb->InnerJoin('a.applications', 'app'); 
+		$qb->addSelect('app'); 
+		$qb->where('a.id = :id'); 
+		$qb->setParameter('id',$id); 
+
+		return $qb->getQuery()->getResult(); 
+	}
+	*/
 }

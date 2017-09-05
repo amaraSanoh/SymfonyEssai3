@@ -30,6 +30,7 @@ class Advert
      */
     private $image;
 
+
     /**
      * @var int
      *

@@ -32,8 +32,9 @@ class AdvertController extends Controller{
 	public function viewAction($id){
 		//recuperation de l'annonce d'id $id afin de l'afficher
 		$em = $this->getDoctrine()->getManager();
-		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id); 
-
+		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
+		//$advert = $em->getRepository("OCPlatformBundle:Advert")->getAdvertWithApplications($id); 
+		foreach($advert as $a) echo $a->getAuthor(); 
 		if($advert === null) throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas !!"); 
 		
 
@@ -191,7 +192,17 @@ class AdvertController extends Controller{
 		$em = $this->getDoctrine()->getManager();
 		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
 		//supprimer maintenant $advert de la base de donnees
+		foreach($advert->getCategories() as $category){
+			$advert->removeCategory($category); 
+		}
+		
+		$advertSkill = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert)); 
+
+		foreach( $advertSkill as $ad)	$em->remove($ad); 
+		foreach( $advert->getApplications() as $app)	$em->remove($app); 
+
 		$em->remove($advert); 
+		//fin de la suppression
 
 		$em->flush();
 
