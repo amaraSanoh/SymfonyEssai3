@@ -76,7 +76,7 @@ class Advert
 
     public function __construct(){
         //la date du jour: la date de création de l'objet
-        $this->date = new \DateTime(); 
+        $this->date = new \Datetime(); 
         $this->categories = new ArrayCollection();
     }
 

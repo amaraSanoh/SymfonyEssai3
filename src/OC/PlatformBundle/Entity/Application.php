@@ -61,7 +61,7 @@ class Application
     }
 
     public function __construct(){
-        $this->date = new \DateTime(); 
+        $this->date = new \Datetime(); 
     }
 
     /**

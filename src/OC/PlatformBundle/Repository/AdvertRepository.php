@@ -2,6 +2,12 @@
 
 namespace OC\PlatformBundle\Repository;
 
+
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder; 
+//use \Datetime; 
+
+
 /**
  * AdvertRepository
  *
@@ -24,6 +30,35 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 	}
 
 
+	//condition que l'on peut appliquer sur toutes nos requetes en construction
+	public function whereCurrentYear(QueryBuilder $qb){
+		$qb
+      		->andWhere('a.date BETWEEN :start AND :end')
+      		->setParameter('start', new \Datetime(date('Y').'-01-01'))  // Date entre le 1er janvier de cette année
+      		->setParameter('end',   new \Datetime(date('Y').'-12-31'))  // Et le 31 décembre de cette année
+      	;   
+		//pas de return, c'est une fonction accessoire
+	}
+
+	//cette methode return les advert et les candidatures
+	public function getAdvertWithApplicationsCurrentYear(){
+		$qb = $this->createQueryBuilder('a'); 
+		$qb->InnerJoin('a.applications', 'app');
+		$qb->addSelect('app'); 
+		$this->whereCurrentYear($qb); 
+		$qb->orderBy('a.date','DESC');  //ordre decroissant
+
+		$qb->getQuery()->getResult(); 
+	}
+
+
+	public function myFind($id){
+		$qb = $this->createQueryBuilder('a'); 
+		$qb->where('a.id = :id')
+			->setParameter('id', $id);
+
+		return $qb->getQuery()->getResult();
+	}
 
 
 	//Methode à revoir

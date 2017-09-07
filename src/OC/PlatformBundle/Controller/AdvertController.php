@@ -34,7 +34,6 @@ class AdvertController extends Controller{
 		$em = $this->getDoctrine()->getManager();
 		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
 		//$advert = $em->getRepository("OCPlatformBundle:Advert")->getAdvertWithApplications($id); 
-		foreach($advert as $a) echo $a->getAuthor(); 
 		if($advert === null) throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas !!"); 
 		
 
@@ -213,8 +212,8 @@ class AdvertController extends Controller{
 	public function menuAction(){
 		//recuperation de l'entity manager
 		$em = $this->getDoctrine()->getManager(); 
-		//recuperer tous les tuples de l'entité advert
-		$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll(); 
+		//recuperer les trois dernieres annonces (advertissements)
+		$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findBy(array(), array('date'=>'desc'), 3 , 0); 
 		
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:menu.html.twig', array(
 		// Tout l'intérêt est ici : le contrôleur passe
