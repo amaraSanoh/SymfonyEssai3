@@ -44,19 +44,7 @@ class AdvertController extends Controller{
     	 // On récupère maintenant la liste des AdvertSkill
 		$listAdvertSkills = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert));
 
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:view.html.twig', array('advert'=>$advert, 'listDesCandidatures'=>$listDesCandidatures, 'count'=>$this->count($listDesCandidatures), 'listAdvertSkills'=>$listAdvertSkills)));
-	}
-
-
-
-
-
-	private function count($uneListe){
-		$c=0; 
-		foreach ($uneListe as $element) {
-			$c++; 
-		}
-		return $c; 
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:view.html.twig', array('advert'=>$advert, 'listDesCandidatures'=>$listDesCandidatures, 'count'=>$advert->getNbApplications(), 'listAdvertSkills'=>$listAdvertSkills)));
 	}
 
 
@@ -142,13 +130,7 @@ class AdvertController extends Controller{
 			throw new \Exception('votre message est un spam'); 
 		}
 
-		//test de l'envoi d'email 
 
-		$envoiEmail =  $this->container->get("oc_platform.envoiEmail");
-		$envoiEmail->envoi("Ajout d'annonce: ".$advert->getTitle(),"amara.sanoh.hawa@gmail.com","sanohawa@gmail.com", "___test___ Envoi email ___test___
-			".
-			$advert->getContent()."
-			Contact: ".$advert->getAuthor());  
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig')); 
 	}
 

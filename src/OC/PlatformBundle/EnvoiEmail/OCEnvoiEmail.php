@@ -10,7 +10,7 @@ class OCEnvoiEmail{
 		$this->mailer = $mailer;  
 	}
 
-	public function envoi($objet, $from, $to, $body){
+	public function envoiEmail($objet, $from, $to, $body){
 		$message = \Swift_Message::newInstance(); 
 		$message->setSubject($objet);
 		$message->setFrom($from);

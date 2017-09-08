@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="application")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\ApplicationRepository")
+ *@ORM\HasLifecycleCallbacks()
  */
 class Application
 {
@@ -63,6 +64,22 @@ class Application
     public function __construct(){
         $this->date = new \Datetime(); 
     }
+
+    /**
+     *@ORM\PrePersist
+     */
+    public function increase(){
+        $this->getAdvert()->incrementNbApplications(); 
+    }
+
+
+    /**
+     *@ORM\PreRemove
+     */
+    public function decrease(){
+        $this->getAdvert()->decrementNbApplications();
+    }
+
 
     /**
      * Set author

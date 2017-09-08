@@ -11,6 +11,13 @@ services:
         arguments: 
             - "@mailer"
 
+    oc_platform.creationPersistance: 
+        class: OC\PlatformBundle\DoctrineListener\CreationListener
+        arguments: 
+            - "@oc_platform.envoiEmail" 
+        tags: 
+            - { name: doctrine.event_listener, event: postPersist }       
+
 
 #    oc_platform.example:
 #        class: OC\PlatformBundle\Example
