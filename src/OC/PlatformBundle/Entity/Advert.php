@@ -3,7 +3,7 @@
 namespace OC\PlatformBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Gedmo\Mapping\Annotation as Gedmo; 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,11 +25,18 @@ class Advert
     * @ORM\ManyToMany(targetEntity="OC\PlatformBundle\Entity\Category", cascade={"persist"})
     */
     private $categories; //est une liste de categorie
+    //@ORM\JoinTable(name="oc_advert_categorie")
+    //cette annotation, nous aurait permis de specifier le nom de notre table intermediaaire
 
     /**
      *@ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist"})
      */
     private $image;
+
+    /**
+     *@ORM\OneToMany(targetEntity="OC\PlatformBundle\Entity\AdvertSkill", mappedBy="advert")
+     */
+    private $advertSkills; //ici je crée une relation bidirectionnelle
 
 
     /**
@@ -84,11 +91,19 @@ class Advert
      */
     private $nbApplications = 0; 
 
+    /**
+     *@Gedmo\Slug(fields={"title"})
+     *@ORM\Column(name="slug", type="string", length=255, unique=true)
+     */
+    private $slug; //cette attribut est unique car cette derniere pour les differentes occurrences de l'entite
+
 
     public function __construct(){
         //la date du jour: la date de création de l'objet
         $this->date = new \Datetime(); 
         $this->categories = new ArrayCollection();
+        $this->applications = new ArrayCollection();
+        $this->advertSkills = new ArrayCollection();  
     }
 
    
@@ -378,5 +393,63 @@ class Advert
     public function getNbApplications()
     {
         return $this->nbApplications;
+    }
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     *
+     * @return Advert
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
+    }
+
+    /**
+     * Add advertSkill
+     *
+     * @param \OC\PlatformBundle\Entity\AdvertSkill $advertSkill
+     *
+     * @return Advert
+     */
+    public function addAdvertSkill(\OC\PlatformBundle\Entity\AdvertSkill $advertSkill)
+    {
+        $this->advertSkills[] = $advertSkill;
+
+        return $this;
+    }
+
+    /**
+     * Remove advertSkill
+     *
+     * @param \OC\PlatformBundle\Entity\AdvertSkill $advertSkill
+     */
+    public function removeAdvertSkill(\OC\PlatformBundle\Entity\AdvertSkill $advertSkill)
+    {
+        $this->advertSkills->removeElement($advertSkill);
+    }
+
+    /**
+     * Get advertSkills
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAdvertSkills()
+    {
+        return $this->advertSkills;
     }
 }

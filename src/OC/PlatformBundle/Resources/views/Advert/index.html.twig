@@ -6,15 +6,61 @@
 
 {% block ocplatform_body %} 
 	<h2> Liste des annonces </h2>
-	<ul>
+	
 		{% for advert in listAdverts %}
-			<li>
-				<a href="{{url('oc_platform_view', {'id': advert.id})}}"> {{ advert.title }}</a>
-				par {{advert.author }},
-				le {{advert.date|date('d/m/Y')}}
-			</li>
+			
+				{%if not loop.first and not loop.last %} <hr> {% endif %}
+
+				<div class="row">
+
+					<div class="col-md-3">
+						<img src="{{advert.getImage().getUrl()}}" alt="{{advert.image.alt}}" style="width:200px;
+height:120px;"><br>
+					</div>
+
+					<div class="col-md-9">
+						<a href="{{url('oc_platform_view', {'id': advert.id})}}"> {{ advert.title }}</a><br>
+						par {{advert.author }},
+				    	le {{advert.date|date('d/m/Y')}} <br>
+
+				    	{% if not advert.getCategories().empty %}
+							<strong>Categories interessées: </strong>
+							{% for cat in advert.getCategories() %}
+								{{cat.getName()}} {% if not loop.last %}, {% endif %}
+							{% endfor %}
+							<br>
+						{% endif %}
+
+						{% if not advert.getAdvertSkills().empty %}
+							<strong>Competences:</strong>
+							{% for ask in advert.getAdvertSkills() %}
+								{{ask.getSkill().getName()}} {% if not loop.last %}, {% endif %}
+							{% endfor %}
+						{% endif %}
+					</div>
+
+				</div>
+			
 		{% else %}
 			<li> Pas encore d'annonces </li>
 		{% endfor %}
-	</ul>	
+
+		<br><br><br>
+
+		
+		<ul class="pagination pagination-lg">
+			{% for i in range(1,nbPage) %}
+   				 
+   					<li {% if i == page %} class="active" {% endif %}>
+   						<a href="{{url('oc_platform_home', {'page': i})}}" > {{i}} </a> 
+   					</li>
+   				 
+			{% endfor %}
+		</ul>
+		
+	
 {% endblock %}
+
+
+
+

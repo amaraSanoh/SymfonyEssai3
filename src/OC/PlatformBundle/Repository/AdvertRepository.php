@@ -5,7 +5,8 @@ namespace OC\PlatformBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder; 
-//use \Datetime; 
+use Doctrine\ORM\Tools\Pagination\Paginator;
+
 
 
 /**
@@ -60,6 +61,25 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->getResult();
 	}
 
+	//IMPORTANT
+	//une methode qui recupere que toutes les annonces, les candidatures etc... et return un paginateur
+	public function getAdverts($page, $nbPerPage){
+		$qb = $this->createQueryBuilder('a'); 
+		$qb->leftJoin('a.image', 'img');
+		$qb->addSelect('img'); 
+		$qb->leftJoin('a.categories','categ');  
+		$qb->addSelect('categ');
+		$qb->leftJoin('a.advertSkills','ask');  
+		$qb->addSelect('ask');
+		$qb->orderBy('a.date', 'DESC'); 
+		$qb->getQuery(); 
+
+		//cote pagination: IMPORTANT
+		$qb->setFirstResult(($page-1)*$nbPerPage); 
+		$qb->setMaxResults($nbPerPage); 
+
+		return new Paginator($qb,true); 
+	}
 
 	//Methode à revoir
 	/*public function getAdvertWithApplications($id){

@@ -20,11 +20,15 @@ class AdvertController extends Controller{
 	public function indexAction($page){
 		if(isset($page) && !empty($page) && $page < 1) throw new NotFoundHttpException('Page"'.$page.'"inexistant.'); 
 
+		$nbAdvertPerPage = 3; 
 		//l'entity manager
 		$em = $this->getDoctrine()->getManager(); 
-    	$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll();
+    	//$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll();
+    	$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->getAdverts($page,$nbAdvertPerPage); //est ma methode dans le repository. elle return un Paginateur
+    	$nbAdvertInDB = $listAdverts->count(); //le nombre d'advert dans la base de données
+    	$nbPage = $nbAdvertInDB/$nbAdvertPerPage; 
 		//templating est un service. Ce service peut être appelé dans tous les controlleurs
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig', array('listAdverts'=>$listAdverts )) );
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig', array('listAdverts'=>$listAdverts, 'nbPage'=>$nbPage, 'page'=> $page)) );
 	}
 
 
@@ -55,9 +59,9 @@ class AdvertController extends Controller{
 
 		//creation de l'entité advert
 		$advert = new Advert(); 
-		$advert->setTitle("Recherche developpeur web"); 
+		$advert->setTitle("Recherche developpeur Java !!! "); 
 		$advert->setAuthor("toto"); 
-		$advert->setContent("Nous recherchons un developpeur web sur Nancy...blabla...."); 
+		$advert->setContent("Nous recherchons un developpeur Java sur Nancy...blabla...."); 
 
 
 		$image = new Image(); 
@@ -155,7 +159,7 @@ class AdvertController extends Controller{
     	
     	$listeDesCategories = $em->getRepository("OCPlatformBundle:Category")->findAll(); 
     	foreach($listeDesCategories as $lc ){
-    		$advert->addCategory($lc); 
+    		if( $advert->getCategories() == null ) $advert->addCategory($lc); 
     	}
 
 
