@@ -55,7 +55,7 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 
 	public function myFind($id){
 		$qb = $this->createQueryBuilder('a'); 
-		$qb->where('a.id = :id')
+		$qb->andWhere('a.id = :id')
 			->setParameter('id', $id);
 
 		return $qb->getQuery()->getResult();
@@ -81,15 +81,20 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 		return new Paginator($qb,true); 
 	}
 
-	//Methode à revoir
-	/*public function getAdvertWithApplications($id){
-		$qb = $this->createQueryBuilder('a'); 
-		$qb->InnerJoin('a.applications', 'app'); 
-		$qb->addSelect('app'); 
-		$qb->where('a.id = :id'); 
-		$qb->setParameter('id',$id); 
 
-		return $qb->getQuery()->getResult(); 
+	//les methodes necessaires pour le pure IMPORTANT 
+	//En paramtre, on lui donne la date jusqu'à laquelle retourner les annonces IMPORTANT
+	//J’ai choisi de mettre en argument une date précise et non un nombre de jour car c’est plus pratique à utiliser ici, plus générique. La conversion “nombre de jour” =>“date précise” se fera dans le service.
+
+	public function getAdvertsBefore($date){
+		$qb = $this->createQueryBuilder('a');
+		$qb->where('a.updatedAt <= :date' )
+		   ->orWhere('a.updateAt IS NULL AND a.date <= :date')
+		   ->andWhere('a.applications IS EMPTY')
+		   ->setParameter('date', $date)
+		; 
+
+		return $qb->getQuery()->getResult();  
 	}
-	*/
+
 }

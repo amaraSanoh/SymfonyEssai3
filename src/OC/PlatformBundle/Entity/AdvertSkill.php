@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * AdvertSkill
  *
- * @ORM\Table(name="advert_skill")
+ * @ORM\Table(name="oc_advert_skill")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\AdvertSkillRepository")
  */
 class AdvertSkill

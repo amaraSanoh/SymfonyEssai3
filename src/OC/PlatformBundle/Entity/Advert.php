@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Advert
  *
- * @ORM\Table(name="advert")
+ * @ORM\Table(name="oc_advert")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\AdvertRepository")
  *@ORM\HasLifecycleCallbacks()
  */
@@ -23,6 +23,7 @@ class Advert
 
    /**
     * @ORM\ManyToMany(targetEntity="OC\PlatformBundle\Entity\Category", cascade={"persist"})
+    * @ORM\JoinTable(name="oc_advert_category")
     */
     private $categories; //est une liste de categorie
     //@ORM\JoinTable(name="oc_advert_categorie")
@@ -452,4 +453,7 @@ class Advert
     {
         return $this->advertSkills;
     }
+
+
+    
 }
