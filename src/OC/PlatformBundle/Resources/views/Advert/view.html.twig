@@ -4,9 +4,17 @@
 {% block title %} {{parent()}} Affichage d'annonce {% endblock %}
 
 {% block ocplatform_body %} 
+
+	{% for message in app.session.flashbag.get('infoAjoutAnnonce') %}
+		<div class="well"> {{message}} </div>
+	{% endfor %}
+
+
+	{%if count is not empty %}
 	<div class="well" style="background-color:green"> 
 		Il existe {{count}} candidatures pour cette annonce!
 	</div>
+	{% endif %}
 
 	{%if advert.image is not null %}
 		<img src="{{advert.image.url}}" alt="{{advert.image.alt}}">

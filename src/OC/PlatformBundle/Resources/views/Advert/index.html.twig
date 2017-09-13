@@ -18,13 +18,18 @@
 				{%if not loop.first and not loop.last %} <hr> {% endif %}
 
 				<div class="row">
-
+					{% if advert.getImage() is not empty %}
 					<div class="col-md-3">
-						<img src="{{advert.getImage().getUrl()}}" alt="{{advert.image.alt}}" style="width:200px;
-height:120px;"><br>
+						<img src="{{advert.getImage().getUrl()}}" alt="{{advert.image.alt}}" style="width:200px; height:120px;"><br>
 					</div>
+					{% endif %}
 
+					{% if advert.getImage() is not empty  %}
 					<div class="col-md-9">
+					{% else %}
+					<div class="col-md-12">
+					{% endif %}
+
 						<a href="{{url('oc_platform_view', {'id': advert.id})}}"> {{ advert.title }}</a><br>
 						par {{advert.author }},
 				    	le {{advert.date|date('d/m/Y')}} <br>

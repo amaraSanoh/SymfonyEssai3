@@ -14,6 +14,15 @@ use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\AdvertSkill;
 
 
+//pour le formulaire
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
+
 
 class AdvertController extends Controller{
 	
@@ -59,72 +68,56 @@ class AdvertController extends Controller{
 
 		//creation de l'entité advert
 		$advert = new Advert(); 
-		$advert->setTitle("Recherche developpeur Java !!! "); 
-		$advert->setAuthor("toto"); 
-		$advert->setContent("Nous recherchons un developpeur Java sur Nancy...blabla...."); 
 
 
-		$image = new Image(); 
-		$image ->setUrl("http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg"); 
-		$image->setAlt("Job de reve"); 
+		
+		//on crée un objet Advert 
+		$advert = new Advert(); 
 
-		$advert->setImage($image); 
+		// On crée le FormBuilder grâce au service form.factory
+		$formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert); //pour dire c'est advert que tu hydrate
 
+		// On ajoute les champs de l'entité que l'on veut à notre formulaire
+		//c'est les champs à hydrater
+		//class est une constante php --> elle retourne le chemin complet de la classe
+		$formBuilder
+			->add('title', TextType::class) 
+			->add('author', TextType::class)
+			->add('date', DateType::class)
+			->add('content', TextareaType::class)
+			->add('published', CheckboxType::class)
+			->add('valider', SubmitType::class)
+		; 
 
-		//pour les candidatures
+		// Pour l'instant, pas de candidatures, catégories, etc., on les gérera plus tard
 
-		$candidature1 = new Application();
-		$candidature1->setAuthor("Melanie"); 
-		$candidature1->setContent("Je disposse de toutes les qualites necessaires pour repondre à cette offre");
+		//Avec le formBuilder on génere le formulaire
+		$formulaire = $formBuilder->getForm(); 
 
-		$candidature2 = new Application();
-		$candidature2->setAuthor("Diane"); 
-		$candidature2->setContent("Je pense ça pourrait aller"); 
-
-		$advert->addApplication($candidature1);
-		$advert->addApplication($candidature2);
-		//$candidature1->setAdvert($advert);
-		//$candidature2->setAdvert($advert);  
-
-
-		//recuperation de l'entité manager
-		$em = $this->getDoctrine()->getManager(); 
-
-
-		// On récupère toutes les compétences possibles
-    	$listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
-
-
-    	// Pour chaque compétence
-		foreach ($listSkills as $skill) {
-      		// On crée une nouvelle « relation entre 1 annonce et 1 compétence »
-			$advertSkill = new AdvertSkill();
-			// On la lie à l'annonce, qui est ici toujours la même
-      		$advertSkill->setAdvert($advert);
-			// On la lie à la compétence, qui change ici dans la boucle foreach
-			$advertSkill->setSkill($skill);
-			// Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert'
-			$advertSkill->setLevel('Expert');
-			// Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
-			$em->persist($advertSkill);
-    	}
-
-		//etape 1, on persiste l'entite
-		//si on n'avait pas fait de cascade persist dans les annotations, on aurait du alors persister $image à la main
-		$em->persist($advert); 
-		$em->persist($candidature1); //car dans l'annotation il n'y a pas de cascade persist. En meme temps ça ne serait pas possible advert serait dejà persisté.
-		$em->persist($candidature2); //on ne va pas le persister 36000 fois
-
-		//etape 2, tout ce qui a été persisté avant
-		$em->flush();
-
-
+		
+		//si la requete est en POST cad que les valeurs ont été entrées en cliquant sur le bouton valider
 		if($request->isMethod('POST')){
-			$session = $request->getSession();
-			//Vue que j ai la session je peux desormais utiliser la methode getFlashBag()
-			$session->getFlashBag()->add('info','Annonce prochainement enregistrée !'); 
-			$session->getFlashBag()->add('info','OUI Oui Annonce prochainement enregistrée !'); 
-			return $this->redirectToRoute('oc_platform_view',array('id'=>$advert->getId())); 
+			 // On fait le lien Requête <-> Formulaire
+
+      		// À partir de maintenant, la variable $advert contient les valeurs entrées dans le formulaire par le visiteur
+
+      		$formulaire->handleRequest($request); 
+
+
+      		// On vérifie que les valeurs entrées sont correctes
+      		if($formulaire->isValid()){
+      			//on peut à présent enregistrer notre objet dans la base de données
+      			//recuperation de l'entité manager
+				$em = $this->getDoctrine()->getManager();
+				$em->persist($advert); 
+				$em->flush();  
+
+				$session = $request->getSession();
+				//Vue que j ai la session je peux desormais utiliser la methode getFlashBag()
+				$session->getFlashBag()->add('infoAjoutAdvert','Annonce Enregistée avec succes!'); 
+				
+				return $this->redirectToRoute('oc_platform_view',array('id'=>$advert->getId())); 
+      		}
 		}
 
 		//test du service antispam
@@ -135,7 +128,12 @@ class AdvertController extends Controller{
 		}
 
 
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig')); 
+		// On passe la méthode createView() du formulaire à la vue
+		// afin qu'elle puisse afficher le formulaire toute seule
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig', array('form'=>$formulaire->createView()))); 
+
+
+		
 	}
 
 
