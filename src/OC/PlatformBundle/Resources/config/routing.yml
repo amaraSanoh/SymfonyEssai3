@@ -31,7 +31,9 @@ oc_platform_delete:
         id: \d+
 
 oc_platform_purge:
-    path: /purge/{id}
-    defaults: {_controller: OCPlatformBundle:Advert:purge }
-    requirements: 
-        id: \d*
+    path: /purge/{days}
+    defaults: 
+        _controller: OCPlatformBundle:Advert:purge 
+        days: 30
+    requirements:
+        days: \d*

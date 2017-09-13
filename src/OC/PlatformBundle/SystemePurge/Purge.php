@@ -23,13 +23,13 @@ class Purge{
 
 		foreach($listAdverts as $a){
 			//liberons $a de toutes ses associations
-			$advertsSkills = $this->em->getRepository("OCPlatformBundle:AdvertSkill")->findBy(array('advert'=>$a)); 
+			$advertsSkills = $a->getAdvertSkills();   //ceci est possible grace à la bidirectionnalité
 
 			foreach($advertsSkills as $as){
 				$this->em->remove($as); 
 			}
 
-			foreach($a->getCategories as $c){
+			foreach($a->getCategories() as $c){
 				$this->em->remove($c); 
 			}
 

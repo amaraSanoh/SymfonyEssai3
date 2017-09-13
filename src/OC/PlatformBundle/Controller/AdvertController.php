@@ -181,9 +181,10 @@ class AdvertController extends Controller{
 			$advert->removeCategory($category); 
 		}
 		
-		$advertSkill = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert)); 
+		//$advertSkill = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert)); 
+		$advertSkills = $advert->getAdvertSkills(); 
 
-		foreach( $advertSkill as $ad)	$em->remove($ad); 
+		foreach( $advertSkills as $ad)	$em->remove($ad); 
 		foreach( $advert->getApplications() as $app)	$em->remove($app); 
 
 		$em->remove($advert); 
@@ -209,13 +210,13 @@ class AdvertController extends Controller{
 	}
 
 
-	public function purgeAction($days, Request $request){
+	public function purgeAction(Request $request, $days){
 		$this->get('oc_platform.advert.purge')->purge($days); 
 
 		//message flashBag 
-
-		$request->getSession()->getFlashBag()->add('info','Les annonces	plus vieilles que '.$days.'	jours ont été	purgées.'); 
-		return  $this->redirectToRoute('oc_platform_home'); 
+		$request->getSession()->getFlashBag()->add('infoPurge','Les annonces	plus vieilles que '.$days.'	jours ont été	purgées.'); 
+		
+		return  $this->redirectToRoute('oc_platform_home');
 	}
 }
 

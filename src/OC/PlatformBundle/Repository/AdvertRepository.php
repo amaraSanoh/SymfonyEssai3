@@ -89,7 +89,7 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
 	public function getAdvertsBefore($date){
 		$qb = $this->createQueryBuilder('a');
 		$qb->where('a.updatedAt <= :date' )
-		   ->orWhere('a.updateAt IS NULL AND a.date <= :date')
+		   ->orWhere('a.updatedAt IS NULL AND a.date <= :date')
 		   ->andWhere('a.applications IS EMPTY')
 		   ->setParameter('date', $date)
 		; 

@@ -9,8 +9,8 @@
 	
 		{% for advert in listAdverts %}
 
-				{% for message in app.session.flashBag('info') %}
-					{{message}}
+				{% for message in app.session.flashbag.get('infoPurge') %}
+					<div class="well"> {{message}} </div>
 				{% endfor %} 
 			
 				<br>
