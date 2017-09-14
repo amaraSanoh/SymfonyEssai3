@@ -12,15 +12,7 @@ use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\AdvertSkill;
-
-
-//pour le formulaire
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use OC\PlatformBundle\Form\AdvertType;
 
 
 
@@ -66,43 +58,19 @@ class AdvertController extends Controller{
 
 	public function addAction(Request $request){
 
-		//creation de l'entité advert
-		$advert = new Advert(); 
-
-
-		
 		//on crée un objet Advert 
 		$advert = new Advert(); 
 
-		// On crée le FormBuilder grâce au service form.factory
-		$formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert); //pour dire c'est advert que tu hydrate
-
-		// On ajoute les champs de l'entité que l'on veut à notre formulaire
-		//c'est les champs à hydrater
-		//class est une constante php --> elle retourne le chemin complet de la classe
-		$formBuilder
-			->add('title', TextType::class) 
-			->add('author', TextType::class)
-			->add('date', DateType::class)
-			->add('content', TextareaType::class)
-			->add('published', CheckboxType::class, array('required' => false))
-			->add('valider', SubmitType::class)
-		; 
+		// On crée le formulaire grâce au service form.factory 
+		$formulaire = $this->get('form.factory')->create(AdvertType::class, $advert); //pour dire c'est advert que tu hydrate
 
 		// Pour l'instant, pas de candidatures, catégories, etc., on les gérera plus tard
-
-		//Avec le formBuilder on génere le formulaire
-		$formulaire = $formBuilder->getForm(); 
-
 		
 		//si la requete est en POST cad que les valeurs ont été entrées en cliquant sur le bouton valider
 		if($request->isMethod('POST')){
 			 // On fait le lien Requête <-> Formulaire
-
       		// À partir de maintenant, la variable $advert contient les valeurs entrées dans le formulaire par le visiteur
-
       		$formulaire->handleRequest($request); 
-
 
       		// On vérifie que les valeurs entrées sont correctes
       		if($formulaire->isValid()){
@@ -120,14 +88,7 @@ class AdvertController extends Controller{
       		}
 		}
 
-		//test du service antispam
-		$antispam = $this->container->get('oc_platform.antispam');
-		$message = " je suis je suis je suis je suis je suis je suis je suis je suis je suis";  
-		if($antispam->isSpam($message)){
-			throw new \Exception('votre message est un spam'); 
-		}
-
-
+		
 		// On passe la méthode createView() du formulaire à la vue
 		// afin qu'elle puisse afficher le formulaire toute seule
 		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:add.html.twig', array('form'=>$formulaire->createView()))); 
@@ -150,23 +111,12 @@ class AdvertController extends Controller{
     		throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     	}
 
-    	$formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert); 
-
-    	$formBuilder
-			->add('title', TextType::class) 
-			->add('author', TextType::class)
-			->add('date', DateType::class)
-			->add('content', TextareaType::class)
-			->add('published', CheckboxType::class, array('required' => false))
-			->add('valider', SubmitType::class)
-		; 
-
-		$formulaire = $formBuilder->getForm(); 
+    	$formulaire = $this->get('form.factory')->create(AdvertType::class, $advert); 
 
 
 		if($request->isMethod('POST')){//en cliquant sur envoyer 
 
-			$formulaire->handleRequest($request);
+			$formulaire->handleRequest($request); //remplir les champs de advert 
 
 			if($formulaire->isValid()){
  
