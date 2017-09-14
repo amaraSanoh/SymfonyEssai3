@@ -85,7 +85,7 @@ class AdvertController extends Controller{
 			->add('author', TextType::class)
 			->add('date', DateType::class)
 			->add('content', TextareaType::class)
-			->add('published', CheckboxType::class)
+			->add('published', CheckboxType::class, array('required' => false))
 			->add('valider', SubmitType::class)
 		; 
 
@@ -140,31 +140,47 @@ class AdvertController extends Controller{
 
 
 	public function editAction($id, Request $request){
-		if($request->isMethod('POST')){
-			
-			$request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.'); 
-			return $this->redirectToRoute('oc_platform_view',array('id'=>$id)); 
-		}
-
+		
 		//recuperation de l'annonce d'id $id afin de l'editer
-    	$em = $this->getDoctrine()->getManager(); 
+		//le recuperer avant la création du formulaire est important comme ça, ce dernier sera pré-remplit 
+    	$em = $this->getDoctrine()->getManager();
     	$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
+
     	if($advert === null ){
     		throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     	}
-    	//$advert->setTitle("Comptable"); 
-    	//$advert->setContent("Nous recherchons un comptable sur Nancy....Beaucoup de blabla....blabla...toujours plus de blabla...");
-    	
-    	$listeDesCategories = $em->getRepository("OCPlatformBundle:Category")->findAll(); 
-    	foreach($listeDesCategories as $lc ){
-    		if( $advert->getCategories() == null ) $advert->addCategory($lc); 
-    	}
+
+    	$formBuilder = $this->get('form.factory')->createBuilder(FormType::class, $advert); 
+
+    	$formBuilder
+			->add('title', TextType::class) 
+			->add('author', TextType::class)
+			->add('date', DateType::class)
+			->add('content', TextareaType::class)
+			->add('published', CheckboxType::class, array('required' => false))
+			->add('valider', SubmitType::class)
+		; 
+
+		$formulaire = $formBuilder->getForm(); 
 
 
-    	$em->flush(); //mettre à jour les modifications 
-    	
+		if($request->isMethod('POST')){//en cliquant sur envoyer 
 
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:edit.html.twig', array('advert'=>$advert))); 
+			$formulaire->handleRequest($request);
+
+			if($formulaire->isValid()){
+ 
+				$em->persist($advert); 
+				$em->flush(); 
+
+				$request->getSession()->getFlashBag()->add('infoModifAnnonce', 'Annonce bien modifiée.'); 
+				return $this->redirectToRoute('oc_platform_view',array('id'=>$id)); 
+			}
+		
+		}
+
+
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:edit.html.twig', array('form'=>$formulaire->createView(), 'advert'=>$advert))); 
 	}
 
 
