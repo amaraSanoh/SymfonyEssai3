@@ -11,6 +11,12 @@
 
 				{% for message in app.session.flashbag.get('infoPurge') %}
 					<div class="well"> {{message}} </div>
+				{% endfor %}
+				
+				<br>
+
+				{% for message in app.session.flashbag.get('infoSuppression') %}
+					<div class="well"> {{message}} </div>
 				{% endfor %} 
 			
 				<br>
@@ -20,7 +26,7 @@
 				<div class="row">
 					{% if advert.getImage() is not empty %}
 					<div class="col-md-3">
-						<img src="{{advert.getImage().getUrl()}}" alt="{{advert.image.alt}}" style="width:200px; height:120px;"><br>
+						<img src="{{asset(advert.image.getWebPath) }}" alt="{{advert.image.alt}}" style="width:200px; height:120px;"><br>
 					</div>
 					{% endif %}
 

@@ -5,8 +5,23 @@
 {% block title %} {{parent()}} Suppression d'annonce {% endblock %}
 
 {% block ocplatform_body %}
-	<div class="well">
-		L'annonce d'id {{id}} supprimée !
-	</div>
+	<h2> Supprimer une annonce </h2>
+
+
+	  <p> Etes-vous certain de vouloir supprimer l'annonce "{{ advert.title }}" ? </p>
+
+	  <form action="{{url('oc_platform_delete', {'id': advert.id})}}" method="post"> 
+	  		<a href="url('oc_platform_view', {'id', advert.id})"  class="btn btn-default" > 
+	  			<i class="glyphicon glyphicon-chevron-left"></i>
+	  			retour à l'annonce
+	  		</a>
+
+
+	  		{# Ici j'ai écrit le bouton de soumission à la main #}
+    		<input type="submit" value="Supprimer" class="btn btn-danger" />
+    		
+    		{# Ceci va générer le champ CSRF #}	
+	  		{{form_rest(form)}}
+	  </form>
 {% endblock %}
 

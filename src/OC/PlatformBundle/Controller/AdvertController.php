@@ -70,12 +70,15 @@ class AdvertController extends Controller{
 		
 		//si la requete est en POST cad que les valeurs ont été entrées en cliquant sur le bouton valider
 		if($request->isMethod('POST')){
+
+
 			 // On fait le lien Requête <-> Formulaire
       		// À partir de maintenant, la variable $advert contient les valeurs entrées dans le formulaire par le visiteur
       		$formulaire->handleRequest($request); 
 
       		// On vérifie que les valeurs entrées sont correctes
       		if($formulaire->isValid()){
+
       			//on peut à présent enregistrer notre objet dans la base de données
       			//recuperation de l'entité manager
 				$em = $this->getDoctrine()->getManager();
@@ -122,7 +125,7 @@ class AdvertController extends Controller{
 
 			if($formulaire->isValid()){
  
-				$em->persist($advert); 
+				//$em->persist($advert); inutile de persister car doctrine connait déjà notre annonce
 				$em->flush(); 
 
 				$request->getSession()->getFlashBag()->add('infoModifAnnonce', 'Annonce bien modifiée.'); 
@@ -138,27 +141,40 @@ class AdvertController extends Controller{
 
 
 
-	public function deleteAction($id){
+	public function deleteAction($id, Request $request){
 		//recuperation en DB de l'annonce d'id $id
 		$em = $this->getDoctrine()->getManager();
 		$advert = $em->getRepository("OCPlatformBundle:Advert")->find($id);
-		//supprimer maintenant $advert de la base de donnees
-		foreach($advert->getCategories() as $category){
-			$advert->removeCategory($category); 
-		}
+
+
+		//créons un formulaire vide pour nous proteger contre les failles
+		$formulaire = $this->get('form.factory')->create(); 
+		if($request->isMethod('POST') && $formulaire->handleRequest($request)->isValid()){
+			//supprimer maintenant $advert de la base de donnees
+			foreach($advert->getCategories() as $category){
+				$advert->removeCategory($category); 
+			}
 		
-		//$advertSkill = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert)); 
-		$advertSkills = $advert->getAdvertSkills(); 
+			//$advertSkill = $em->getRepository('OCPlatformBundle:AdvertSkill')->findBy(array('advert' => $advert)); 
+			$advertSkills = $advert->getAdvertSkills(); 
 
-		foreach( $advertSkills as $ad)	$em->remove($ad); 
-		foreach( $advert->getApplications() as $app)	$em->remove($app); 
+			foreach( $advertSkills as $ad)	$em->remove($ad); 
+			foreach( $advert->getApplications() as $app)	$em->remove($app); 
 
-		$em->remove($advert); 
-		//fin de la suppression
+			$em->remove($advert); 
+			//fin de la suppression
 
-		$em->flush();
+			$em->flush();
 
-		return $this->render('OCPlatformBundle:Advert:delete.html.twig', array('id'=>$id)); 
+			$request->getSession()->getFlashBag()->add('infoSuppression', 'Annonce Supprimée avec Succès! ');
+
+			return $this->redirectToRoute('oc_platform_home');  	
+		}
+
+
+		
+
+		return $this->render('OCPlatformBundle:Advert:delete.html.twig', array('advert'=>$advert, 'form'=>$formulaire->createView())); 
 	}
 
 

@@ -30,7 +30,7 @@ class Advert
     //cette annotation, nous aurait permis de specifier le nom de notre table intermediaaire
 
     /**
-     *@ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist"})
+     *@ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist", "remove"} )
      */
     private $image;
 
