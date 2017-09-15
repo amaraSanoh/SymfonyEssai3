@@ -13,6 +13,8 @@ use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Form\AdvertType;
+use OC\PlatformBundle\Form\AdvertEditType; 
+
 
 
 
@@ -111,7 +113,7 @@ class AdvertController extends Controller{
     		throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
     	}
 
-    	$formulaire = $this->get('form.factory')->create(AdvertType::class, $advert); 
+    	$formulaire = $this->get('form.factory')->create(AdvertEditType::class, $advert); 
 
 
 		if($request->isMethod('POST')){//en cliquant sur envoyer 
