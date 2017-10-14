@@ -49,7 +49,7 @@ class LoadAdvert implements FixtureInterface
       $advert->setDate($toc[3]); 
 
       $image = new Image(); 
-      $image ->setUrl("http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg"); 
+      $image ->setExtension("http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg"); 
       $image->setAlt("Job de reve"); 
 
       $advert->setImage($image); 

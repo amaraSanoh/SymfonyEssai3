@@ -16,41 +16,69 @@
 
 <body>
   <div class="container">
-    <div id="header" class="jumbotron">
-      <h1>Ma plateforme d'annonces</h1>
-      <p>
-        Ce projet est propulsé par Symfony,
-        et construit grâce au MOOC OpenClassrooms et SensioLabs.
-      </p>
-      <p>
-        <a class="btn btn-primary btn-lg" href="https://openclassrooms.com/courses/developpez-votre-site-web-avec-le-framework-symfony2">
-          Participer au MOOC »
-        </a>
-      </p>
-    </div>
+      <div class="jumbotron">
+        <div class="row">
+          <div class="col-md-8">
+                <h1>Ma plateforme d'annonces</h1>
+                <p>
+                  Ce projet est propulsé par Symfony,
+                  et construit grâce au MOOC OpenClassrooms et SensioLabs.
+                </p>
+                <p>
+                  <a class="btn btn-primary btn-lg" href="https://openclassrooms.com/courses/developpez-votre-site-web-avec-le-framework-symfony2">
+                    Participer au MOOC »
+                  </a>
+                </p>
+          </div>
 
-    <div class="row">
-      <div id="menu" class="col-md-3">
-        <h3>Les annonces</h3>
-        <ul class="nav nav-pills nav-stacked">
-          <li><a href="{{ url('oc_platform_home') }}">Accueil</a></li>
-          <li><a href="{{ url('oc_platform_add') }}">Ajouter une annonce</a></li>
-        </ul>
+          <div class="col-md-4">
+                 {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                      
+                      Connecté en tant que {{ app.user.username }} <br>
+                      
+                      <buttom style="right:1px; background-color:green; " class="btn btn-primary btn-lg">    
+                          <a style="color:white; " href="{{ path('fos_user_security_logout') }}">Déconnexion</a>
+                      </buttom>
 
-        <h4>Dernières annonces</h4>
-        {{ render(controller("OCPlatformBundle:Advert:menu", {'limit': 3})) }}
+                  {% else %}
+
+                      <buttom class="btn btn-primary btn-lg" style="right:1px; background-color:green;">
+                          <a  style="color:white; " href="{{ path('fos_user_security_login') }}">Connexion</a>
+                      </buttom>
+
+                  {% endif %}
+          </div>
+
+        </div>
       </div>
-      <div id="content" class="col-md-9">
-        {% block body %}
-        {% endblock %}
+
+      <div class="row">
+          <div id="menu" class="col-md-3">
+            <h3>Les annonces</h3>
+            <ul class="nav nav-pills nav-stacked">
+              <li><a href="{{ url('oc_platform_home') }}">Accueil</a></li>
+              {% if is_granted('ROLE_AUTEUR') %}
+                  <li><a href="{{ url('oc_platform_add') }}">Ajouter une annonce</a></li>
+              {% endif %}
+            </ul>
+
+            <h4>Dernières annonces</h4>
+            {{ render(controller("OCPlatformBundle:Advert:menu", {'limit': 3})) }}
+          </div>
+          
+          
+          <div id="content" class="col-md-9">
+            {% block body %}
+            {% endblock %}
+          </div>
       </div>
-    </div>
 
-    <hr>
+        <hr>
 
-    <footer>
-      <p>The sky's the limit © {{ 'now'|date('Y') }} and beyond.</p>
-    </footer>
+        <footer>
+          <p>The sky's the limit © {{ 'now'|date('Y') }} and beyond.</p>
+        </footer>
+
   </div>
 
   {% block javascripts %}

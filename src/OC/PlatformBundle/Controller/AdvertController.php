@@ -15,10 +15,13 @@ use OC\PlatformBundle\Entity\AdvertSkill;
 use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Form\AdvertEditType; 
 
-
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+//la classe pour le controle d'acces à travers les annotations
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 
 class AdvertController extends Controller{
+	
 	
 	public function indexAction($page){
 		if(isset($page) && !empty($page) && $page < 1) throw new NotFoundHttpException('Page"'.$page.'"inexistant.'); 
@@ -31,7 +34,9 @@ class AdvertController extends Controller{
     	$nbAdvertInDB = $listAdverts->count(); //le nombre d'advert dans la base de données
     	$nbPage = $nbAdvertInDB/$nbAdvertPerPage; 
 		//templating est un service. Ce service peut être appelé dans tous les controlleurs
-		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig', array('listAdverts'=>$listAdverts, 'nbPage'=>$nbPage, 'page'=> $page)) );
+		return new Response($this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig', array('listAdverts'=>$listAdverts, 'nbPage'=>$nbPage, 'page'=> $page, 'user'=> $this->getUser()) ));
+
+		//$this->getUser() donne l'utilisateur courant derriere un pare-feu
 	}
 
 
@@ -55,9 +60,12 @@ class AdvertController extends Controller{
 	}
 
 
+	//c'est l'annotation du controle d'acces 
+	
 
-
-
+	/**
+	 *@Security("has_role('ROLE_AUTEUR')")
+	 */
 	public function addAction(Request $request){
 
 		//on crée un objet Advert 
@@ -103,8 +111,12 @@ class AdvertController extends Controller{
 	}
 
 
+	//cette annotation est une speciale qui veut juste savoir que l'utilisateur est authentifié
+	//@Security("has_role('IS_AUTHENTICATED_REMEMBERED')")
 
-
+	/**
+	 *@Security("has_role('ROLE_AUTEUR')")
+	 */
 	public function editAction($id, Request $request){
 		
 		//recuperation de l'annonce d'id $id afin de l'editer
@@ -140,7 +152,9 @@ class AdvertController extends Controller{
 
 
 
-
+	/**
+	 *@Security("has_role('ROLE_AUTEUR')")
+	 */
 	public function deleteAction($id, Request $request){
 		//recuperation en DB de l'annonce d'id $id
 		$em = $this->getDoctrine()->getManager();
@@ -192,6 +206,9 @@ class AdvertController extends Controller{
 	}
 
 
+	/**
+	 *@Security("has_role('ROLE_ADMIN')")
+	 */
 	public function purgeAction(Request $request, $days){
 		$this->get('oc_platform.advert.purge')->purge($days); 
 

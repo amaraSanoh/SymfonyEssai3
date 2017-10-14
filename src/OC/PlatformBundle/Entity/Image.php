@@ -61,7 +61,7 @@ class Image
      */
     public function setExtension($extension)
     {
-        $this->url = $extension;
+        $this->extension = $extension;
 
         return $this;
     }

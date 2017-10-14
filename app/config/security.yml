@@ -1,20 +1,68 @@
 # To get started with security, check out the documentation:
 # https://symfony.com/doc/current/security.html
+#La méthode de l'annotation permet de sécuriser une méthode de contrôleur. 
+#La méthode avec Twig permet de sécuriser l'affichage. 
+#La méthode des contrôles d'accès permet de sécuriser des URL. 
+
+
 security:
+
+    encoders: 
+        Symfony\Component\Security\Core\User\User: plaintext
+        OC\UserBundle\Entity\User: sha512
+
+    
+    role_hierarchy: 
+        #un admin herite des droits d'auteur et de moderateur
+        ROLE_ADMIN:    [ROLE_AUTEUR, ROLE_MODERATEUR]
+        #le role superadmin nous servira plus tard 
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
 
     # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
     providers:
-        in_memory:
-            memory: ~
+#        in_memory: #est le nom du provider, totalement arbitraire. attention juste à bien utiliser le même dans la configuration du par-feu.
+#            memory: #Ceci est le type de provider, un nom fixe defini dans symfony .le fournisseur memory c'est pour les utilisateurs définit dans cette configuration
+#                users: 
+#                    user: {password: userpass, roles: ['ROLE_USER']}
+#                    admin: {password: adminpass, roles: ['ROLE_ADMIN']}
+        main:  #est le nom du provider
+           # entity: 
+               # class:    OC\UserBundle\Entity\User
+                #property: username
 
-    firewalls:
+            #utilisons à présent le service du FOSUer comme fournisseur 
+            id: fos_user.user_provider.username
+
+
+    firewalls: #c'est un pare-feu
         # disables authentication for assets and the profiler, adapt it according to your needs
-        dev:
+        dev: #est un pare-feu
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        main:
-            anonymous: ~
+        main: #nom du pare-feu
+            pattern:    ^/
+            anonymous:    true #accepte les utilisateurs anonymes . Nous protegerons nos ressources grace aux roles.
+            provider:    main #on specifie le provider à interroger
+            form_login: #donne la possibilite au firewall (pare-feu) que l'utilisateur est bien identifie
+                login_path: fos_user_security_login #route de connexion du fosuser
+                check_path: fos_user_security_check #la route de validation de la connexion, gérée par symfony
+            logout: 
+                path:    fos_user_security_logout #est la route de deconnexion
+                target:    fos_user_security_login #est la route sur laquelle, symfony nous redirige apres une deconnexion
+            remember_me: 
+                secret:    %secret% # %secret% est un parametre de parameter 
+
+
+    access_control: 
+        #Securise toutes les pages commençant par /admin
+        - { path: ^/admin , roles: ROLE_ADMIN} 
+        #Securise l'url par ip ou par canal https graces aux options
+        - { path: ^/admin, ip: 127.0.0.1, requires_channel: https }
+
+        #main:
+         #   anonymous: ~
             # activate different ways to authenticate
 
             # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
