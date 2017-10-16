@@ -19,6 +19,12 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 //la classe pour le controle d'acces à travers les annotations
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
+//les classe pour mes propres evenements
+use OC\PlatformBundle\Event\PlatformEvents;
+use OC\PlatformBundle\Event\MessagePostEvent;
+
+
+
 
 class AdvertController extends Controller{
 	
@@ -86,6 +92,20 @@ class AdvertController extends Controller{
 
       		// On vérifie que les valeurs entrées sont correctes
       		if($formulaire->isValid()){
+
+      			//DECLECNCHER UN EVENEMENT
+
+      			//cree l'evenement avec ses 2 parametres 
+      			$event = new MessagePostEvent($advert->getContent(), $this->getUser());
+
+      			//on declenche l'evenement
+      			$this->get('event_dispatcher')->dispatch(PlatformEvents::POST_MESSAGE, $event); 
+
+      			//FIN DU DECLENCHEMENT
+
+      			// On récupère ce qui a été modifié par le ou les listeners, ici le message
+				$advert->setContent($event->getMessage());
+
 
       			//on peut à présent enregistrer notre objet dans la base de données
       			//recuperation de l'entité manager

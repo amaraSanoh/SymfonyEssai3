@@ -5,6 +5,7 @@
 
 {% block ocplatform_body %} 
 
+
 	{% for message in app.session.flashbag.get('infoAjoutAnnonce') %}
 		<div class="well"> {{message}} </div>
 	{% endfor %}
