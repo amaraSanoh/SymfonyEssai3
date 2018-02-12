@@ -23,7 +23,11 @@ class LoadUser implements FixtureInterface
 
     // Les noms d'utilisateurs à créer
 
-    $listNames = array('Amara', 'Melanie', 'Marie');
+    $listNames = array(
+                array('Amara', 'sanohawa@gmail.com'), 
+                array('Mélanie', 'laurentmelanie@ymail.com'), 
+                array('Marie', 'marieange100@yahoo.fr')
+              );
 
 
     foreach ($listNames as $name) {
@@ -35,9 +39,11 @@ class LoadUser implements FixtureInterface
 
       // Le nom d'utilisateur et le mot de passe sont identiques pour l'instant
 
-      $user->setUsername($name);
+      $user->setUsername($name[0]);
 
-      $user->setPassword($name);
+      $user->setPassword($name[0]);
+
+      $user->setEmail($name[1]);      
 
 
       // On ne se sert pas du sel pour l'instant

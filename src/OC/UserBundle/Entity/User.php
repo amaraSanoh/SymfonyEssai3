@@ -27,7 +27,7 @@ class User extends BaseUser /*implements UserInterface */
     protected $id;
 
     public function __construct(){
-        parent::___construct(); 
+        parent::__construct(); 
         $this->addRole('ROLE_AUTEUR'); 
     }
 

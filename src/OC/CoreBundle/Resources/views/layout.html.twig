@@ -42,8 +42,12 @@
 
                   {% else %}
 
+                      <br><br>    
                       <buttom class="btn btn-primary btn-lg" style="right:1px; background-color:green;">
                           <a  style="color:white; " href="{{ path('fos_user_security_login') }}">Connexion</a>
+                      </buttom> <br><br>
+                      <buttom class="btn btn-primary btn-lg" style="right:1px; background-color:green;">
+                          <a  style="color:white; " href="{{ path('fos_user_registration_register') }}">créer un compte</a>
                       </buttom>
 
                   {% endif %}
